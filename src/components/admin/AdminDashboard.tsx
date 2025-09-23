@@ -1,44 +1,77 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Package, ShoppingBag, TrendingUp, Users } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { Product, Order, Brand, Category } from '../../types';
+
+interface DashboardStats {
+  totalProducts: number;
+  totalOrders: number;
+  totalRevenue: number;
+  activeBrands: number;
+  totalCategories: number;
+}
 
 const AdminDashboard: React.FC = () => {
-  const stats = [
-    {
-      name: 'Total Products',
-      value: '156',
-      icon: Package,
-      change: '+12%',
-      changeType: 'positive'
-    },
-    {
-      name: 'Total Orders',
-      value: '89',
-      icon: ShoppingBag,
-      change: '+8%',
-      changeType: 'positive'
-    },
-    {
-      name: 'Revenue',
-      value: '$12,456',
-      icon: TrendingUp,
-      change: '+23%',
-      changeType: 'positive'
-    },
-    {
-      name: 'Active Brands',
-      value: '12',
-      icon: Users,
-      change: '+2%',
-      changeType: 'positive'
-    }
-  ];
+  const [stats, setStats] = useState<DashboardStats>({
+    totalProducts: 0,
+    totalOrders: 0,
+    totalRevenue: 0,
+    activeBrands: 0,
+    totalCategories: 0
+  });
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const recentOrders = [
-    { id: '1', customer: 'John Doe', amount: '$125.00', status: 'completed', date: '2025-01-01' },
-    { id: '2', customer: 'Jane Smith', amount: '$89.50', status: 'pending', date: '2025-01-01' },
-    { id: '3', customer: 'Mike Johnson', amount: '$156.00', status: 'shipped', date: '2024-12-31' },
-    { id: '4', customer: 'Sarah Wilson', amount: '$203.25', status: 'completed', date: '2024-12-31' },
-  ];
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      // Fetch all data in parallel
+      const [
+        productsResult,
+        ordersResult,
+        brandsResult,
+        categoriesResult,
+        recentOrdersResult
+      ] = await Promise.all([
+        supabase.from('products').select('*'),
+        supabase.from('orders').select('*'),
+        supabase.from('brands').select('*'),
+        supabase.from('categories').select('*'),
+        supabase
+          .from('orders')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(5)
+      ]);
+
+      // Calculate stats
+      const products = productsResult.data || [];
+      const orders = ordersResult.data || [];
+      const brands = brandsResult.data || [];
+      const categories = categoriesResult.data || [];
+      const recentOrdersData = recentOrdersResult.data || [];
+
+      // Calculate total revenue
+      const totalRevenue = orders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+
+      setStats({
+        totalProducts: products.length,
+        totalOrders: orders.length,
+        totalRevenue,
+        activeBrands: brands.length,
+        totalCategories: categories.length
+      });
+
+      setRecentOrders(recentOrdersData);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -48,10 +81,55 @@ const AdminDashboard: React.FC = () => {
         return 'bg-yellow-100 text-yellow-800';
       case 'shipped':
         return 'bg-blue-100 text-blue-800';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
+
+  const formatCurrency = (amount: number) => {
+    return `KSH ${amount.toLocaleString()}`;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
+  const dashboardStats = [
+    {
+      name: 'Total Products',
+      value: stats.totalProducts.toString(),
+      icon: Package,
+      change: stats.totalProducts > 0 ? '+' + stats.totalProducts : '0',
+      changeType: 'positive'
+    },
+    {
+      name: 'Total Orders',
+      value: stats.totalOrders.toString(),
+      icon: ShoppingBag,
+      change: stats.totalOrders > 0 ? '+' + stats.totalOrders : '0',
+      changeType: 'positive'
+    },
+    {
+      name: 'Total Revenue',
+      value: formatCurrency(stats.totalRevenue),
+      icon: TrendingUp,
+      change: stats.totalRevenue > 0 ? formatCurrency(stats.totalRevenue) : 'KSH 0',
+      changeType: 'positive'
+    },
+    {
+      name: 'Active Brands',
+      value: stats.activeBrands.toString(),
+      icon: Users,
+      change: stats.activeBrands > 0 ? '+' + stats.activeBrands : '0',
+      changeType: 'positive'
+    }
+  ];
 
   return (
     <div className="space-y-6">
@@ -63,7 +141,7 @@ const AdminDashboard: React.FC = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((item) => (
+        {dashboardStats.map((item) => (
           <div key={item.name} className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
@@ -79,11 +157,6 @@ const AdminDashboard: React.FC = () => {
                       <div className="text-2xl font-semibold text-gray-900">
                         {item.value}
                       </div>
-                      <div className={`ml-2 flex items-baseline text-sm font-semibold ${
-                        item.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {item.change}
-                      </div>
                     </dd>
                   </dl>
                 </div>
@@ -98,51 +171,90 @@ const AdminDashboard: React.FC = () => {
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg leading-6 font-medium text-gray-900">Recent Orders</h3>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Order ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Customer
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Amount
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {recentOrders.map((order) => (
-                <tr key={order.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    #{order.id}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {order.customer}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {order.amount}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {order.date}
-                  </td>
+        {recentOrders.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Order ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Customer
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Amount
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Date
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {recentOrders.map((order) => (
+                  <tr key={order.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      #{order.id.slice(0, 8)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {order.customer_name}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {formatCurrency(order.total_amount)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(order.created_at || '').toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <ShoppingBag className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No orders yet</h3>
+            <p className="mt-1 text-sm text-gray-500">Orders will appear here once customers start placing them.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="bg-white shadow rounded-lg p-6">
+        <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Quick Actions</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <button
+            onClick={() => window.location.href = '/admin/products'}
+            className="bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700 transition-colors text-center"
+          >
+            Add Product
+          </button>
+          <button
+            onClick={() => window.location.href = '/admin/categories'}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-center"
+          >
+            Manage Categories
+          </button>
+          <button
+            onClick={() => window.location.href = '/admin/brands'}
+            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-center"
+          >
+            Manage Brands
+          </button>
+          <button
+            onClick={() => window.location.href = '/admin/orders'}
+            className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors text-center"
+          >
+            View Orders
+          </button>
         </div>
       </div>
     </div>
