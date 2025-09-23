@@ -10,6 +10,10 @@ import ProductDetail from './pages/ProductDetail';
 import AdminLogin from './components/admin/AdminLogin';
 import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './components/admin/AdminDashboard';
+import Products from './components/admin/Products';
+import Categories from './components/admin/Categories';
+import Brands from './components/admin/Brands';
+import Orders from './components/admin/Orders';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -28,10 +32,10 @@ function App() {
             }
           >
             <Route index element={<AdminDashboard />} />
-            <Route path="products" element={<div className="text-center py-12"><h2 className="text-2xl font-bold">Products Management - Coming Soon</h2></div>} />
-            <Route path="categories" element={<div className="text-center py-12"><h2 className="text-2xl font-bold">Categories Management - Coming Soon</h2></div>} />
-            <Route path="brands" element={<div className="text-center py-12"><h2 className="text-2xl font-bold">Brands Management - Coming Soon</h2></div>} />
-            <Route path="orders" element={<div className="text-center py-12"><h2 className="text-2xl font-bold">Orders Management - Coming Soon</h2></div>} />
+            <Route path="products" element={<Products />} />
+            <Route path="categories" element={<Categories />} />
+            <Route path="brands" element={<Brands />} />
+            <Route path="orders" element={<Orders />} />
             <Route path="settings" element={<div className="text-center py-12"><h2 className="text-2xl font-bold">Settings - Coming Soon</h2></div>} />
           </Route>
 
