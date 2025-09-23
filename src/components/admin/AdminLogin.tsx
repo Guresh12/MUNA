@@ -113,7 +113,7 @@ const AdminLogin: React.FC = () => {
 
         <div className="mt-6 text-center">
           <p className="text-xs text-gray-500">
-            Demo credentials: admin@johwaracollection.com / admin123
+    
           </p>
         </div>
       </div>
