@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingCart, MessageCircle } from 'lucide-react';
+import { ShoppingCart, MessageCircle, Star } from 'lucide-react';
 import { Product } from '../types';
 
 interface ProductCardProps {
@@ -28,6 +28,16 @@ Please let me know about availability and delivery options.`;
     window.open(whatsappUrl, '_blank');
   };
 
+  const renderStars = (rating: number) => {
+    return (
+      <div className="flex items-center">
+        {[...Array(5)].map((_, i) => (
+          <Star key={i} className={`h-3 w-3 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div 
       className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
@@ -35,7 +45,12 @@ Please let me know about availability and delivery options.`;
     >
       <div className="aspect-square overflow-hidden rounded-t-lg">
         <img 
-          src={product.image_url || 'https://images.pexels.com/photos/1190829/pexels-photo-1190829.jpeg?auto=compress&cs=tinysrgb&w=400'}
+          src={
+            product.product_images?.find(img => img.is_primary)?.image_url ||
+            product.product_images?.[0]?.image_url ||
+            product.image_url ||
+            'https://images.pexels.com/photos/1190829/pexels-photo-1190829.jpeg?auto=compress&cs=tinysrgb&w=400'
+          }
           alt={product.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
@@ -48,6 +63,13 @@ Please let me know about availability and delivery options.`;
         <p className="text-sm text-gray-600 mb-3 line-clamp-2">
           {product.description}
         </p>
+        
+        <div className="flex items-center justify-between mb-3">
+          {renderStars(Math.floor(product.rating || 0))}
+          <span className="text-xs text-gray-500">
+            ({product.reviews_count || 0})
+          </span>
+        </div>
         
         <div className="flex items-center justify-between">
           <span className="text-xl font-bold text-gray-900">

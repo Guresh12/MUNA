@@ -24,8 +24,20 @@ export interface Product {
   category_id: string;
   stock: number;
   created_at?: string;
+  rating?: number;
+  reviews_count?: number;
   brand?: Brand;
   category?: Category;
+  product_images?: ProductImage[];
+}
+
+export interface ProductImage {
+  id: string;
+  product_id: string;
+  image_url: string;
+  is_primary: boolean;
+  order_index: number;
+  created_at?: string;
 }
 
 export interface User {

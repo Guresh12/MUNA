@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShoppingCart, MessageCircle, Star } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, MessageCircle, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { Product } from '../types';
+import { Product, ProductImage } from '../types';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
+  const [productImages, setProductImages] = useState<ProductImage[]>([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
 
@@ -23,6 +25,7 @@ const ProductDetail: React.FC = () => {
         .from('products')
         .select(`
           *,
+          product_images(*),
           brand:brands(name, description),
           category:categories(name, description)
         `)
@@ -31,12 +34,45 @@ const ProductDetail: React.FC = () => {
       
       if (error) throw error;
       setProduct(data);
+      
+      // Set up product images
+      const images = data.product_images || [];
+      if (images.length > 0) {
+        // Sort images by order_index and primary status
+        const sortedImages = images.sort((a: ProductImage, b: ProductImage) => {
+          if (a.is_primary && !b.is_primary) return -1;
+          if (!a.is_primary && b.is_primary) return 1;
+          return a.order_index - b.order_index;
+        });
+        setProductImages(sortedImages);
+      } else if (data.image_url) {
+        // Fallback to legacy image_url
+        setProductImages([{
+          id: 'legacy',
+          product_id: data.id,
+          image_url: data.image_url,
+          is_primary: true,
+          order_index: 0
+        }]);
+      }
     } catch (error) {
       console.error('Error fetching product:', error);
       navigate('/shop');
     } finally {
       setLoading(false);
     }
+  };
+
+  const nextImage = () => {
+    setSelectedImageIndex((prev) => (prev + 1) % productImages.length);
+  };
+
+  const prevImage = () => {
+    setSelectedImageIndex((prev) => (prev - 1 + productImages.length) % productImages.length);
+  };
+
+  const selectImage = (index: number) => {
+    setSelectedImageIndex(index);
   };
 
   const handleWhatsAppOrder = () => {
@@ -60,6 +96,16 @@ Please let me know about availability and delivery options.`;
   const handleAddToCart = () => {
     // Add to cart logic here
     console.log('Add to cart:', product?.id, 'quantity:', quantity);
+  };
+
+  const renderStars = (rating: number) => {
+    return (
+      <div className="flex items-center">
+        {[...Array(5)].map((_, i) => (
+          <Star key={i} className={`h-5 w-5 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+        ))}
+      </div>
+    );
   };
 
   if (loading) {
@@ -100,13 +146,65 @@ Please let me know about availability and delivery options.`;
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
-            {/* Product Image */}
-            <div className="aspect-square overflow-hidden rounded-lg">
-              <img
-                src={product.image_url || 'https://images.pexels.com/photos/1190829/pexels-photo-1190829.jpeg?auto=compress&cs=tinysrgb&w=800'}
-                alt={product.title}
-                className="w-full h-full object-cover"
-              />
+            {/* Product Images Gallery */}
+            <div className="space-y-4">
+              {/* Main Image */}
+              <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
+                {productImages.length > 0 ? (
+                  <>
+                    <img
+                      src={productImages[selectedImageIndex]?.image_url || 'https://images.pexels.com/photos/1190829/pexels-photo-1190829.jpeg?auto=compress&cs=tinysrgb&w=800'}
+                      alt={product.title}
+                      className="w-full h-full object-cover"
+                    />
+                    
+                    {/* Navigation arrows for main image */}
+                    {productImages.length > 1 && (
+                      <>
+                        <button
+                          onClick={prevImage}
+                          className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-200"
+                        >
+                          <ChevronLeft className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={nextImage}
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all duration-200"
+                        >
+                          <ChevronRight className="h-5 w-5" />
+                        </button>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <span>No image available</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Thumbnail Images */}
+              {productImages.length > 1 && (
+                <div className="grid grid-cols-4 gap-2">
+                  {productImages.map((image, index) => (
+                    <button
+                      key={image.id}
+                      onClick={() => selectImage(index)}
+                      className={`aspect-square overflow-hidden rounded-md border-2 transition-all duration-200 ${
+                        index === selectedImageIndex
+                          ? 'border-yellow-500 ring-2 ring-yellow-200'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <img
+                        src={image.image_url}
+                        alt={`${product.title} ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Product Details */}
@@ -121,13 +219,16 @@ Please let me know about availability and delivery options.`;
                 )}
               </div>
 
-              <div className="flex items-center space-x-2">
-                <div className="flex text-yellow-400">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 fill-current" />
-                  ))}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  {renderStars(Math.floor(product.rating || 0))}
+                  <span className="text-gray-600">
+                    ({product.rating?.toFixed(1) || '0.0'})
+                  </span>
                 </div>
-                <span className="text-gray-600">(4.8/5 - 124 reviews)</span>
+                <span className="text-sm text-gray-500">
+                  {product.reviews_count || 0} reviews
+                </span>
               </div>
 
               <div className="text-3xl font-bold text-gray-900">

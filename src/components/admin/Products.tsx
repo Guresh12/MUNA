@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Upload, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Upload, X, Star, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { Product, Brand, Category } from '../../types';
+import { Product, Brand, Category, ProductImage } from '../../types';
 
 interface ProductFormData {
   title: string;
@@ -11,6 +11,8 @@ interface ProductFormData {
   brand_id: string;
   category_id: string;
   image_url: string;
+  rating: number;
+  reviews_count: number;
 }
 
 const Products: React.FC = () => {
@@ -20,6 +22,8 @@ const Products: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [productImages, setProductImages] = useState<ProductImage[]>([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState<ProductFormData>({
     title: '',
@@ -29,6 +33,8 @@ const Products: React.FC = () => {
     brand_id: '',
     category_id: '',
     image_url: ''
+    rating: 0,
+    reviews_count: 0
   });
 
   useEffect(() => {
@@ -43,6 +49,7 @@ const Products: React.FC = () => {
         .from('products')
         .select(`
           *,
+          product_images(*),
           brand:brands(name),
           category:categories(name)
         `)
@@ -85,6 +92,49 @@ const Products: React.FC = () => {
     }
   };
 
+  const handleMultipleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingImages(true);
+    const uploadedImages: ProductImage[] = [];
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `products/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('images')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage
+          .from('images')
+          .getPublicUrl(filePath);
+
+        uploadedImages.push({
+          id: `temp-${i}`,
+          product_id: '',
+          image_url: data.publicUrl,
+          is_primary: i === 0,
+          order_index: i,
+          created_at: new Date().toISOString()
+        });
+      }
+
+      setProductImages([...productImages, ...uploadedImages]);
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      alert('Error uploading images');
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -114,6 +164,48 @@ const Products: React.FC = () => {
     }
   };
 
+  const removeProductImage = (index: number) => {
+    const updatedImages = productImages.filter((_, i) => i !== index);
+    setProductImages(updatedImages);
+  };
+
+  const setPrimaryImage = (index: number) => {
+    const updatedImages = productImages.map((img, i) => ({
+      ...img,
+      is_primary: i === index
+    }));
+    setProductImages(updatedImages);
+  };
+
+  const saveProductImages = async (productId: string) => {
+    try {
+      // Delete existing images for this product
+      await supabase
+        .from('product_images')
+        .delete()
+        .eq('product_id', productId);
+
+      // Insert new images
+      if (productImages.length > 0) {
+        const imagesToInsert = productImages.map((img, index) => ({
+          product_id: productId,
+          image_url: img.image_url,
+          is_primary: img.is_primary,
+          order_index: index
+        }));
+
+        const { error } = await supabase
+          .from('product_images')
+          .insert(imagesToInsert);
+
+        if (error) throw error;
+      }
+    } catch (error) {
+      console.error('Error saving product images:', error);
+      throw error;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -125,12 +217,18 @@ const Products: React.FC = () => {
           .eq('id', editingProduct.id);
         
         if (error) throw error;
+        await saveProductImages(editingProduct.id);
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('products')
-          .insert([formData]);
+          .insert([formData])
+          .select()
+          .single();
         
         if (error) throw error;
+        if (data) {
+          await saveProductImages(data.id);
+        }
       }
 
       fetchProducts();
@@ -144,6 +242,7 @@ const Products: React.FC = () => {
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
+    setProductImages(product.product_images || []);
     setFormData({
       title: product.title,
       description: product.description,
@@ -151,7 +250,9 @@ const Products: React.FC = () => {
       stock: product.stock,
       brand_id: product.brand_id,
       category_id: product.category_id,
-      image_url: product.image_url
+      image_url: product.image_url,
+      rating: product.rating || 0,
+      reviews_count: product.reviews_count || 0
     });
     setShowModal(true);
   };
@@ -182,13 +283,26 @@ const Products: React.FC = () => {
       brand_id: '',
       category_id: '',
       image_url: ''
+      rating: 0,
+      reviews_count: 0
     });
+    setProductImages([]);
     setEditingProduct(null);
   };
 
   const closeModal = () => {
     setShowModal(false);
     resetForm();
+  };
+
+  const renderStars = (rating: number) => {
+    return (
+      <div className="flex items-center">
+        {[...Array(5)].map((_, i) => (
+          <Star key={i} className={`h-4 w-4 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+        ))}
+      </div>
+    );
   };
 
   if (loading) {
@@ -232,6 +346,12 @@ const Products: React.FC = () => {
               <div className="text-xs text-gray-500 mb-3">
                 <span>{product.brand?.name}</span> • <span>{product.category?.name}</span>
               </div>
+              <div className="flex items-center justify-between mb-3">
+                {renderStars(Math.floor(product.rating || 0))}
+                <span className="text-xs text-gray-500">
+                  {product.rating?.toFixed(1)} ({product.reviews_count} reviews)
+                </span>
+              </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => handleEdit(product)}
@@ -255,8 +375,8 @@ const Products: React.FC = () => {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">
                 {editingProduct ? 'Edit Product' : 'Add New Product'}
@@ -293,7 +413,7 @@ const Products: React.FC = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Price (KSH)
@@ -318,6 +438,35 @@ const Products: React.FC = () => {
                     min="0"
                     value={formData.stock}
                     onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Rating (0-5)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="5"
+                    step="0.1"
+                    value={formData.rating}
+                    onChange={(e) => setFormData({ ...formData, rating: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Reviews Count
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.reviews_count}
+                    onChange={(e) => setFormData({ ...formData, reviews_count: parseInt(e.target.value) || 0 })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   />
                 </div>
@@ -362,8 +511,8 @@ const Products: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Product Image
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Main Product Image (Legacy)
                 </label>
                 <input
                   type="file"
@@ -379,6 +528,67 @@ const Products: React.FC = () => {
                     alt="Preview"
                     className="mt-2 w-20 h-20 object-cover rounded"
                   />
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Product Images Gallery
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleMultipleImageUpload}
+                  disabled={uploadingImages}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500 mb-3"
+                />
+                {uploadingImages && <p className="text-sm text-gray-500 mb-3">Uploading images...</p>}
+                
+                {productImages.length > 0 && (
+                  <div className="space-y-3">
+                    <p className="text-sm text-gray-600">Uploaded Images:</p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {productImages.map((image, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={image.image_url}
+                            alt={`Product ${index + 1}`}
+                            className={`w-full h-24 object-cover rounded border-2 ${
+                              image.is_primary ? 'border-yellow-500' : 'border-gray-200'
+                            }`}
+                          />
+                          <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center space-x-2">
+                            <button
+                              type="button"
+                              onClick={() => setPrimaryImage(index)}
+                              className={`p-1 rounded text-xs ${
+                                image.is_primary 
+                                  ? 'bg-yellow-500 text-white' 
+                                  : 'bg-white text-gray-700 hover:bg-gray-100'
+                              }`}
+                              title="Set as primary"
+                            >
+                              <Star className="h-3 w-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => removeProductImage(index)}
+                              className="p-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
+                              title="Remove image"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                          {image.is_primary && (
+                            <div className="absolute top-1 left-1 bg-yellow-500 text-white text-xs px-1 rounded">
+                              Primary
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
 
