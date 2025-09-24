@@ -282,7 +282,7 @@ const Products: React.FC = () => {
       stock: 0,
       brand_id: '',
       category_id: '',
-      image_url: ''
+      image_url: '',
       rating: 0,
       reviews_count: 0
     });
