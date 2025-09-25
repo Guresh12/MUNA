@@ -40,10 +40,10 @@ Please let me know about availability and delivery options.`;
 
   return (
     <div 
-      className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
+      className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer group w-full"
       onClick={onClick}
     >
-      <div className="aspect-square overflow-hidden rounded-t-lg">
+      <div className="aspect-square overflow-hidden rounded-t-lg relative">
         <img 
           src={
             product.product_images?.find(img => img.is_primary)?.image_url ||
@@ -53,41 +53,45 @@ Please let me know about availability and delivery options.`;
           }
           alt={product.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = 'https://images.pexels.com/photos/1190829/pexels-photo-1190829.jpeg?auto=compress&cs=tinysrgb&w=400';
+          }}
         />
       </div>
       
-      <div className="p-4">
-        <h3 className="text-lg font-medium text-gray-900 mb-2 line-clamp-2">
+      <div className="p-3 sm:p-4">
+        <h3 className="text-sm sm:text-lg font-medium text-gray-900 mb-2 line-clamp-2">
           {product.title}
         </h3>
-        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+        <p className="text-xs sm:text-sm text-gray-600 mb-3 line-clamp-2">
           {product.description}
         </p>
         
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-3 text-xs sm:text-sm">
           {renderStars(Math.floor(product.rating || 0))}
-          <span className="text-xs text-gray-500">
+          <span className="text-xs sm:text-sm text-gray-500">
             ({product.reviews_count || 0})
           </span>
         </div>
         
-        <div className="flex items-center justify-between">
-          <span className="text-xl font-bold text-gray-900">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <span className="text-lg sm:text-xl font-bold text-gray-900">
             KSH {product.price.toLocaleString()}
           </span>
-          <div className="flex gap-2">
+          <div className="flex gap-1 sm:gap-2">
             <button
               onClick={handleWhatsAppOrder}
-              className="bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 transition-colors flex items-center gap-1"
+              className="bg-green-600 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-md hover:bg-green-700 transition-colors flex items-center gap-1 text-xs sm:text-sm"
               title="Order via WhatsApp"
             >
-              <MessageCircle className="h-4 w-4" />
+              <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4" />
             </button>
             <button
               onClick={handleAddToCart}
-              className="bg-black text-white px-3 py-2 rounded-md hover:bg-gray-800 transition-colors flex items-center gap-1"
+              className="bg-black text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-md hover:bg-gray-800 transition-colors flex items-center gap-1 text-xs sm:text-sm"
             >
-              <ShoppingCart className="h-4 w-4" />
+              <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
             </button>
           </div>
         </div>

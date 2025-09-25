@@ -75,31 +75,31 @@ const Navbar: React.FC = () => {
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200 fixed w-full top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-14 sm:h-16">
           {/* Logo */}
-         <div className="flex-shrink-0">
+         <div className="flex-shrink-0 min-w-0">
   <Link to="/" className="flex items-center space-x-3">
     <img 
       src="/JWLOGO.jpeg" 
       alt="Jowhara Collection Logo" 
-      className="h-10 w-auto object-contain"
+      className="h-8 sm:h-10 w-auto object-contain"
     />
-    <div className="flex flex-col">
-      <h1 className="text-xl font-bold text-black">Jowhara Collection</h1>
-      <p className="text-xs text-gray-600">Beauty & Fragrance</p>
+    <div className="flex flex-col min-w-0">
+      <h1 className="text-sm sm:text-xl font-bold text-black truncate">Jowhara Collection</h1>
+      <p className="text-xs text-gray-600 hidden sm:block">Beauty & Fragrance</p>
     </div>
   </Link>
 </div>
 
           {/* Navigation Links */}
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-8">
+          <div className="hidden lg:block">
+            <div className="ml-4 xl:ml-10 flex items-baseline space-x-4 xl:space-x-8">
               <Link to="/" className="text-black hover:text-yellow-600 px-3 py-2 text-sm font-medium transition-colors">
                 Home
               </Link>
               
               {/* Browse by Category Dropdown */}
-              <div className="relative" ref={categoryDropdownRef}>
+              <div className="relative hidden xl:block" ref={categoryDropdownRef}>
                 <button
                   onClick={() => setCategoryDropdownOpen(!isCategoryDropdownOpen)}
                   className="text-black hover:text-yellow-600 px-3 py-2 text-sm font-medium inline-flex items-center transition-colors"
@@ -127,7 +127,7 @@ const Navbar: React.FC = () => {
               </div>
 
               {/* Browse by Brand Dropdown */}
-              <div className="relative" ref={brandDropdownRef}>
+              <div className="relative hidden xl:block" ref={brandDropdownRef}>
                 <button
                   onClick={() => setBrandDropdownOpen(!isBrandDropdownOpen)}
                   className="text-black hover:text-yellow-600 px-3 py-2 text-sm font-medium inline-flex items-center transition-colors"
@@ -181,7 +181,7 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Right side icons */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <div className="relative" ref={searchRef}>
               <form onSubmit={handleSearch} className="flex items-center">
                 <input
@@ -189,24 +189,39 @@ const Navbar: React.FC = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search products..."
-                  className="hidden md:block w-64 px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
+                  className="hidden md:block w-32 lg:w-48 xl:w-64 px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
                 />
                 <button 
                   type="submit"
-                  className="ml-2 text-black hover:text-yellow-600 transition-colors"
+                  className="ml-1 sm:ml-2 text-black hover:text-yellow-600 transition-colors"
                 >
-                  <Search className="h-5 w-5" />
+                  <Search className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
               </form>
             </div>
             <button className="text-black hover:text-yellow-600 transition-colors relative">
-              <ShoppingCart className="h-5 w-5" />
-              <span className="absolute -top-2 -right-2 h-4 w-4 bg-yellow-600 text-white text-xs rounded-full flex items-center justify-center">
+              <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="absolute -top-1 sm:-top-2 -right-1 sm:-right-2 h-3 w-3 sm:h-4 sm:w-4 bg-yellow-600 text-white text-xs rounded-full flex items-center justify-center">
                 0
               </span>
             </button>
             <Link to="/admin" className="text-black hover:text-yellow-600 transition-colors">
-              <User className="h-5 w-5" />
+              <User className="h-4 w-4 sm:h-5 sm:w-5" />
+            </Link>
+          </div>
+        </div>
+        
+        {/* Mobile Navigation Menu */}
+        <div className="lg:hidden border-t border-gray-200 py-2">
+          <div className="flex justify-center space-x-6">
+            <Link to="/shop" className="text-black hover:text-yellow-600 px-2 py-1 text-sm font-medium transition-colors">
+              Shop
+            </Link>
+            <Link to="/about" className="text-black hover:text-yellow-600 px-2 py-1 text-sm font-medium transition-colors">
+              About
+            </Link>
+            <Link to="/contact" className="text-black hover:text-yellow-600 px-2 py-1 text-sm font-medium transition-colors">
+              Contact
             </Link>
           </div>
         </div>

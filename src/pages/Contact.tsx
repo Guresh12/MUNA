@@ -31,76 +31,76 @@ const Contact: React.FC = () => {
   };
 
   return (
-    <div className="pt-20 min-h-screen">
+    <div className="pt-16 sm:pt-20 min-h-screen">
       {/* Hero Section */}
-      <div className="bg-gray-50 py-16">
+      <div className="bg-gray-50 py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
             Contact Us
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-xl text-gray-600 max-w-2xl mx-auto">
             Get in touch with our team. We're here to help with any questions about our luxury products.
           </p>
         </div>
       </div>
 
       {/* Contact Info & Form */}
-      <div className="py-16">
+      <div className="py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12">
             
             {/* Contact Information */}
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-8">Get in Touch</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">Get in Touch</h2>
               
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <div className="h-12 w-12 bg-yellow-600 rounded-full flex items-center justify-center">
-                      <Phone className="h-6 w-6 text-white" />
+                    <div className="h-10 w-10 sm:h-12 sm:w-12 bg-yellow-600 rounded-full flex items-center justify-center">
+                      <Phone className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                   </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Phone</h3>
-                    <p className="text-gray-600">+254 722 240 558</p>
+                  <div className="ml-3 sm:ml-4">
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900">Phone</h3>
+                    <p className="text-sm sm:text-base text-gray-600">+254 722 240 558</p>
                   </div>
                 </div>
 
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <div className="h-12 w-12 bg-yellow-600 rounded-full flex items-center justify-center">
-                      <Mail className="h-6 w-6 text-white" />
+                    <div className="h-10 w-10 sm:h-12 sm:w-12 bg-yellow-600 rounded-full flex items-center justify-center">
+                      <Mail className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                   </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Email</h3>
-                    <p className="text-gray-600">info@johwaracollection.com</p>
+                  <div className="ml-3 sm:ml-4">
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900">Email</h3>
+                    <p className="text-sm sm:text-base text-gray-600">info@johwaracollection.com</p>
                   </div>
                 </div>
 
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <div className="h-12 w-12 bg-yellow-600 rounded-full flex items-center justify-center">
-                      <MapPin className="h-6 w-6 text-white" />
+                    <div className="h-10 w-10 sm:h-12 sm:w-12 bg-yellow-600 rounded-full flex items-center justify-center">
+                      <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                   </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Address</h3>
-                    <p className="text-gray-600">Nairobi, Kenya</p>
+                  <div className="ml-3 sm:ml-4">
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900">Address</h3>
+                    <p className="text-sm sm:text-base text-gray-600">Nairobi, Kenya</p>
                   </div>
                 </div>
 
                 <div className="flex items-center">
                   <div className="flex-shrink-0">
-                    <div className="h-12 w-12 bg-green-600 rounded-full flex items-center justify-center">
-                      <MessageCircle className="h-6 w-6 text-white" />
+                    <div className="h-10 w-10 sm:h-12 sm:w-12 bg-green-600 rounded-full flex items-center justify-center">
+                      <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                   </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">WhatsApp</h3>
+                  <div className="ml-3 sm:ml-4">
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900">WhatsApp</h3>
                     <button
                       onClick={handleWhatsApp}
-                      className="text-green-600 hover:text-green-700 font-medium"
+                      className="text-sm sm:text-base text-green-600 hover:text-green-700 font-medium"
                     >
                       Chat with us instantly
                     </button>
@@ -110,12 +110,12 @@ const Contact: React.FC = () => {
             </div>
 
             {/* Contact Form */}
-            <div className="bg-white rounded-lg shadow-md p-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Send us a Message</h3>
+            <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Send us a Message</h3>
               
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                     Full Name
                   </label>
                   <input
@@ -125,12 +125,12 @@ const Contact: React.FC = () => {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 text-sm sm:text-base"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                     Email Address
                   </label>
                   <input
@@ -140,12 +140,12 @@ const Contact: React.FC = () => {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 text-sm sm:text-base"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                     Subject
                   </label>
                   <input
@@ -155,12 +155,12 @@ const Contact: React.FC = () => {
                     value={formData.subject}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 text-sm sm:text-base"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                     Message
                   </label>
                   <textarea
@@ -170,13 +170,13 @@ const Contact: React.FC = () => {
                     value={formData.message}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 text-sm sm:text-base"
                   ></textarea>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-yellow-600 text-white px-6 py-3 rounded-md hover:bg-yellow-700 transition-colors font-medium"
+                  className="w-full bg-yellow-600 text-white px-6 py-3 rounded-md hover:bg-yellow-700 transition-colors font-medium text-sm sm:text-base"
                 >
                   Send Message
                 </button>

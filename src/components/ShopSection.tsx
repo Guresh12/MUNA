@@ -67,7 +67,10 @@ const ShopSection: React.FC = () => {
         )}
 
         <div className="text-center mt-12">
-          <button className="bg-black text-white px-8 py-3 rounded-md hover:bg-gray-800 transition-colors text-lg font-medium">
+          <button 
+            onClick={() => window.location.href = '/shop'}
+            className="bg-black text-white px-6 sm:px-8 py-3 rounded-md hover:bg-gray-800 transition-colors text-base sm:text-lg font-medium"
+          >
             View All Products
           </button>
         </div>

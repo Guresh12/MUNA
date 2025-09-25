@@ -15,23 +15,26 @@ const Hero: React.FC = () => {
        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/myhero.jpeg')`,
   }}
     >
-      <div className="text-center text-white max-w-4xl mx-auto px-4">
-        <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+      <div className="text-center text-white max-w-4xl mx-auto px-4 sm:px-6">
+        <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
           Luxury Beauty & Fragrance
         </h1>
-        <p className="text-xl md:text-2xl mb-8 text-gray-200 leading-relaxed">
+        <p className="text-base sm:text-xl md:text-2xl mb-6 sm:mb-8 text-gray-200 leading-relaxed">
           Discover our premium collection of beauty and fragrance products
         </p>
         
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <button className="bg-white text-black px-8 py-3 rounded-md font-medium hover:bg-gray-100 transition-colors text-lg min-w-[160px]">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
+          <button 
+            onClick={() => window.location.href = '/shop'}
+            className="bg-white text-black px-6 sm:px-8 py-2.5 sm:py-3 rounded-md font-medium hover:bg-gray-100 transition-colors text-base sm:text-lg min-w-[140px] sm:min-w-[160px]"
+          >
             Shop Now
           </button>
           <button 
             onClick={handleWhatsAppOrder}
-            className="border-2 border-white text-white px-8 py-3 rounded-md font-medium hover:bg-white hover:text-black transition-colors text-lg min-w-[160px] flex items-center justify-center gap-2"
+            className="border-2 border-white text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-md font-medium hover:bg-white hover:text-black transition-colors text-base sm:text-lg min-w-[140px] sm:min-w-[160px] flex items-center justify-center gap-2"
           >
-            <MessageCircle className="h-5 w-5" />
+            <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
             Order via WhatsApp
           </button>
         </div>

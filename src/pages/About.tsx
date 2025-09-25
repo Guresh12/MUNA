@@ -26,15 +26,15 @@ const About: React.FC = () => {
   ];
 
   return (
-    <div className="pt-20 min-h-screen">
+    <div className="pt-16 sm:pt-20 min-h-screen">
       {/* Hero Section */}
-      <div className="bg-gray-50 py-16">
+      <div className="bg-gray-50 py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
               About Jowhara Collection
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Your premier destination for luxury beauty and fragrance products. 
               We curate the finest collections from the world's most prestigious brands.
             </p>
@@ -43,17 +43,17 @@ const About: React.FC = () => {
       </div>
 
       {/* Story Section */}
-      <div className="py-16">
+      <div className="py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Story</h2>
-              <p className="text-gray-600 mb-6 leading-relaxed">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Our Story</h2>
+              <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 leading-relaxed">
                 Founded with a passion for luxury and beauty, Jowhara Collection has been 
                 serving discerning customers who appreciate the finest in fragrance and cosmetics. 
                 Our journey began with a simple mission: to make luxury beauty accessible to everyone.
               </p>
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
                 Today, we're proud to offer an extensive collection of premium products from 
                 renowned brands like Chanel, Dior, Tom Ford, and Versace, ensuring that our 
                 customers have access to the very best in beauty and fragrance.
@@ -71,23 +71,23 @@ const About: React.FC = () => {
       </div>
 
       {/* Features Section */}
-      <div className="bg-gray-50 py-16">
+      <div className="bg-gray-50 py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose Us</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Why Choose Us</h2>
+            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
               We're committed to providing you with the best luxury shopping experience
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {features.map((feature, index) => (
               <div key={index} className="text-center">
-                <div className="mx-auto h-16 w-16 bg-yellow-600 rounded-full flex items-center justify-center mb-6">
-                  <feature.icon className="h-8 w-8 text-white" />
+                <div className="mx-auto h-12 w-12 sm:h-16 sm:w-16 bg-yellow-600 rounded-full flex items-center justify-center mb-4 sm:mb-6">
+                  <feature.icon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">{feature.title}</h3>
+                <p className="text-sm sm:text-base text-gray-600">{feature.description}</p>
               </div>
             ))}
           </div>

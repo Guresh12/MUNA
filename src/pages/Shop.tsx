@@ -57,13 +57,13 @@ const Shop: React.FC = () => {
   };
 
   return (
-    <div className="pt-20 min-h-screen">
+    <div className="pt-16 sm:pt-20 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             {searchQuery ? `Search Results for "${searchQuery}"` : 'Shop All Products'}
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-sm sm:text-lg text-gray-600">
             {searchQuery 
               ? `Found ${filteredProducts.length} products matching your search`
               : 'Browse our complete collection of luxury beauty and fragrance products'
@@ -76,7 +76,7 @@ const Shop: React.FC = () => {
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 mb-8 sm:mb-12">
             {filteredProducts.map((product) => (
               <ProductCard 
                 key={product.id} 
@@ -88,9 +88,9 @@ const Shop: React.FC = () => {
         )}
 
         {!loading && filteredProducts.length === 0 && (
-          <div className="text-center py-12">
-            <h3 className="text-xl font-medium text-gray-900 mb-2">No products found</h3>
-            <p className="text-gray-600">
+          <div className="text-center py-8 sm:py-12">
+            <h3 className="text-lg sm:text-xl font-medium text-gray-900 mb-2">No products found</h3>
+            <p className="text-sm sm:text-base text-gray-600">
               {searchQuery 
                 ? 'Try adjusting your search terms or browse all products'
                 : 'No products available at the moment'
