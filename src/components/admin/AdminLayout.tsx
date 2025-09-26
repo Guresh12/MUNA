@@ -7,6 +7,7 @@ import {
   Users, 
   ShoppingBag, 
   Settings,
+  TrendingUp,
   LogOut,
   Menu,
   X
@@ -31,6 +32,7 @@ const AdminLayout: React.FC = () => {
   const navigationItems = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Products', href: '/admin/products', icon: Package },
+    { name: 'Trending Perfumes', href: '/admin/trending', icon: TrendingUp },
     { name: 'Categories', href: '/admin/categories', icon: Tags },
     { name: 'Brands', href: '/admin/brands', icon: Users },
     { name: 'Orders', href: '/admin/orders', icon: ShoppingBag },

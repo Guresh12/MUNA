@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Upload, X, Star, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { Product, Brand, Category, ProductImage } from '../../types';
+import { Product, Brand, Category, ProductImage, ProductAdditionalInfo } from '../../types';
 
 interface ProductFormData {
   title: string;
@@ -15,6 +15,11 @@ interface ProductFormData {
   reviews_count: number;
 }
 
+interface AdditionalInfoItem {
+  key: string;
+  value: string;
+}
+
 const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -24,6 +29,7 @@ const Products: React.FC = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productImages, setProductImages] = useState<ProductImage[]>([]);
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [additionalInfo, setAdditionalInfo] = useState<AdditionalInfoItem[]>([]);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState<ProductFormData>({
     title: '',
@@ -177,6 +183,54 @@ const Products: React.FC = () => {
     setProductImages(updatedImages);
   };
 
+  const addAdditionalInfoField = () => {
+    setAdditionalInfo([...additionalInfo, { key: '', value: '' }]);
+  };
+
+  const removeAdditionalInfoField = (index: number) => {
+    const updatedInfo = additionalInfo.filter((_, i) => i !== index);
+    setAdditionalInfo(updatedInfo);
+  };
+
+  const updateAdditionalInfoField = (index: number, field: 'key' | 'value', value: string) => {
+    const updatedInfo = additionalInfo.map((item, i) => 
+      i === index ? { ...item, [field]: value } : item
+    );
+    setAdditionalInfo(updatedInfo);
+  };
+
+  const saveAdditionalInfo = async (productId: string) => {
+    try {
+      // Delete existing additional info for this product
+      await supabase
+        .from('product_additional_info')
+        .delete()
+        .eq('product_id', productId);
+
+      // Insert new additional info
+      if (additionalInfo.length > 0) {
+        const infoToInsert = additionalInfo
+          .filter(item => item.key.trim() && item.value.trim())
+          .map(item => ({
+            product_id: productId,
+            key: item.key.trim(),
+            value: item.value.trim()
+          }));
+
+        if (infoToInsert.length > 0) {
+          const { error } = await supabase
+            .from('product_additional_info')
+            .insert(infoToInsert);
+
+          if (error) throw error;
+        }
+      }
+    } catch (error) {
+      console.error('Error saving additional info:', error);
+      throw error;
+    }
+  };
+
   const saveProductImages = async (productId: string) => {
     try {
       // Delete existing images for this product
@@ -218,6 +272,7 @@ const Products: React.FC = () => {
         
         if (error) throw error;
         await saveProductImages(editingProduct.id);
+        await saveAdditionalInfo(editingProduct.id);
       } else {
         const { data, error } = await supabase
           .from('products')
@@ -228,6 +283,7 @@ const Products: React.FC = () => {
         if (error) throw error;
         if (data) {
           await saveProductImages(data.id);
+          await saveAdditionalInfo(data.id);
         }
       }
 
@@ -240,9 +296,24 @@ const Products: React.FC = () => {
     }
   };
 
-  const handleEdit = (product: Product) => {
+  const handleEdit = async (product: Product) => {
     setEditingProduct(product);
     setProductImages(product.product_images || []);
+    
+    // Fetch additional info for this product
+    try {
+      const { data, error } = await supabase
+        .from('product_additional_info')
+        .select('*')
+        .eq('product_id', product.id);
+      
+      if (!error && data) {
+        setAdditionalInfo(data.map(item => ({ key: item.key, value: item.value })));
+      }
+    } catch (error) {
+      console.error('Error fetching additional info:', error);
+    }
+    
     setFormData({
       title: product.title,
       description: product.description,
@@ -287,6 +358,7 @@ const Products: React.FC = () => {
       reviews_count: 0
     });
     setProductImages([]);
+    setAdditionalInfo([]);
     setEditingProduct(null);
   };
 
@@ -588,6 +660,52 @@ const Products: React.FC = () => {
                         </div>
                       ))}
                     </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Additional Information Section */}
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Additional Information
+                  </label>
+                  <button
+                    type="button"
+                    onClick={addAdditionalInfoField}
+                    className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md transition-colors"
+                  >
+                    Add Field
+                  </button>
+                </div>
+                
+                {additionalInfo.length > 0 && (
+                  <div className="space-y-3 max-h-40 overflow-y-auto border border-gray-200 rounded-md p-3">
+                    {additionalInfo.map((item, index) => (
+                      <div key={index} className="flex gap-2 items-center">
+                        <input
+                          type="text"
+                          placeholder="Key (e.g., Brand Origin)"
+                          value={item.key}
+                          onChange={(e) => updateAdditionalInfoField(index, 'key', e.target.value)}
+                          className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-yellow-500"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Value (e.g., France)"
+                          value={item.value}
+                          onChange={(e) => updateAdditionalInfoField(index, 'value', e.target.value)}
+                          className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-yellow-500"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeAdditionalInfoField(index)}
+                          className="p-1 text-red-600 hover:bg-red-50 rounded"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

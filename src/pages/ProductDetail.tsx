@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ShoppingCart, MessageCircle, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { Product, ProductImage } from '../types';
+import { Product, ProductImage, ProductAdditionalInfo } from '../types';
+import { useCart } from '../hooks/useCart';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [productImages, setProductImages] = useState<ProductImage[]>([]);
+  const [additionalInfo, setAdditionalInfo] = useState<ProductAdditionalInfo[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
@@ -21,7 +24,8 @@ const ProductDetail: React.FC = () => {
 
   const fetchProduct = async (productId: string) => {
     try {
-      const { data, error } = await supabase
+      const [productResult, additionalInfoResult] = await Promise.all([
+        supabase
         .from('products')
         .select(`
           *,
@@ -30,13 +34,19 @@ const ProductDetail: React.FC = () => {
           category:categories(name, description)
         `)
         .eq('id', productId)
-        .single();
+        .single(),
+        supabase
+          .from('product_additional_info')
+          .select('*')
+          .eq('product_id', productId)
+      ]);
       
-      if (error) throw error;
-      setProduct(data);
+      if (productResult.error) throw productResult.error;
+      setProduct(productResult.data);
+      setAdditionalInfo(additionalInfoResult.data || []);
       
       // Set up product images
-      const images = data.product_images || [];
+      const images = productResult.data.product_images || [];
       if (images.length > 0) {
         // Sort images by primary status first, then by order_index
         const sortedImages = images.sort((a: ProductImage, b: ProductImage) => {
@@ -46,12 +56,12 @@ const ProductDetail: React.FC = () => {
         });
         setProductImages(sortedImages);
         setSelectedImageIndex(0);
-      } else if (data.image_url) {
+      } else if (productResult.data.image_url) {
         // Fallback to legacy image_url
         setProductImages([{
           id: 'legacy',
-          product_id: data.id,
-          image_url: data.image_url,
+          product_id: productResult.data.id,
+          image_url: productResult.data.image_url,
           is_primary: true,
           order_index: 0
         }]);
@@ -96,8 +106,9 @@ Please let me know about availability and delivery options.`;
   };
 
   const handleAddToCart = () => {
-    // Add to cart logic here
-    console.log('Add to cart:', product?.id, 'quantity:', quantity);
+    if (product) {
+      addToCart(product, quantity);
+    }
   };
 
   const renderStars = (rating: number) => {
@@ -154,7 +165,7 @@ Please let me know about availability and delivery options.`;
             {/* Product Images Gallery */}
             <div className="space-y-4">
               {/* Main Image */}
-              <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
+              <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100 group">
                 {currentImage ? (
                   <>
                     <img
@@ -166,6 +177,13 @@ Please let me know about availability and delivery options.`;
                         target.src = fallbackImage;
                       }}
                     />
+                    
+                    {/* Image counter overlay */}
+                    {productImages.length > 1 && (
+                      <div className="absolute top-2 right-2 bg-black/60 text-white px-2 py-1 rounded text-xs">
+                        {selectedImageIndex + 1} / {productImages.length}
+                      </div>
+                    )}
                     
                     {/* Navigation arrows for main image */}
                     {productImages.length > 1 && (
@@ -194,7 +212,7 @@ Please let me know about availability and delivery options.`;
 
               {/* Thumbnail Images */}
               {productImages.length > 1 && (
-                <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-4 gap-2">
+                <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-4 xl:grid-cols-6 gap-2 max-h-32 overflow-y-auto">
                   {productImages.map((image, index) => (
                     <button
                       key={image.id}
@@ -288,6 +306,25 @@ Please let me know about availability and delivery options.`;
                   </button>
                 </div>
               </div>
+
+              {/* Additional Information */}
+              {additionalInfo.length > 0 && (
+                <div className="border-t pt-4 sm:pt-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Additional Information</h3>
+                  <div className="space-y-3">
+                    {additionalInfo.map((info) => (
+                      <div key={info.id} className="flex flex-col sm:flex-row sm:justify-between border-b border-gray-100 pb-2">
+                        <span className="font-medium text-gray-900 text-sm sm:text-base">
+                          {info.key}:
+                        </span>
+                        <span className="text-gray-600 text-sm sm:text-base mt-1 sm:mt-0">
+                          {info.value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="border-t pt-4 sm:pt-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">

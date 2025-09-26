@@ -14,6 +14,7 @@ import Products from './components/admin/Products';
 import Categories from './components/admin/Categories';
 import Brands from './components/admin/Brands';
 import Orders from './components/admin/Orders';
+import TrendingPerfumes from './components/admin/TrendingPerfumes';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
           >
             <Route index element={<AdminDashboard />} />
             <Route path="products" element={<Products />} />
+            <Route path="trending" element={<TrendingPerfumes />} />
             <Route path="categories" element={<Categories />} />
             <Route path="brands" element={<Brands />} />
             <Route path="orders" element={<Orders />} />

@@ -3,6 +3,7 @@ import { Search, ShoppingCart, User, ChevronDown, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Brand, Category } from '../types';
 import { supabase } from '../lib/supabase';
+import { useCart } from '../hooks/useCart';
 
 const Navbar: React.FC = () => {
   const [isBrandDropdownOpen, setBrandDropdownOpen] = useState(false);
@@ -10,6 +11,7 @@ const Navbar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const { getTotalItems } = useCart();
   const brandDropdownRef = useRef<HTMLDivElement>(null);
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
@@ -202,7 +204,7 @@ const Navbar: React.FC = () => {
             <button className="text-black hover:text-yellow-600 transition-colors relative">
               <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className="absolute -top-1 sm:-top-2 -right-1 sm:-right-2 h-3 w-3 sm:h-4 sm:w-4 bg-yellow-600 text-white text-xs rounded-full flex items-center justify-center">
-                0
+                {getTotalItems()}
               </span>
             </button>
             <Link to="/admin" className="text-black hover:text-yellow-600 transition-colors">

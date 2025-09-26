@@ -40,6 +40,30 @@ export interface ProductImage {
   created_at?: string;
 }
 
+export interface TrendingPerfume {
+  id: string;
+  product_id: string;
+  order_index: number;
+  is_active: boolean;
+  created_at?: string;
+  product?: Product;
+}
+
+export interface ProductAdditionalInfo {
+  id: string;
+  product_id: string;
+  key: string;
+  value: string;
+  created_at?: string;
+}
+
+export interface CartItem {
+  id: string;
+  product_id: string;
+  quantity: number;
+  product?: Product;
+}
+
 export interface User {
   id: string;
   email: string;

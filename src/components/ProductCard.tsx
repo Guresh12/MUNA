@@ -1,6 +1,7 @@
 import React from 'react';
 import { ShoppingCart, MessageCircle, Star } from 'lucide-react';
 import { Product } from '../types';
+import { useCart } from '../hooks/useCart';
 
 interface ProductCardProps {
   product: Product;
@@ -8,10 +9,11 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
+  const { addToCart } = useCart();
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Add to cart logic here
-    console.log('Add to cart:', product.id);
+    addToCart(product, 1);
   };
 
   const handleWhatsAppOrder = (e: React.MouseEvent) => {

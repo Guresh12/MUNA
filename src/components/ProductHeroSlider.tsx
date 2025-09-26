@@ -1,56 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { Product } from '../types';
+import { Product, TrendingPerfume } from '../types';
 import { useNavigate } from 'react-router-dom';
 
 const ProductHeroSlider: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [trendingPerfumes, setTrendingPerfumes] = useState<TrendingPerfume[]>([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchFeaturedProducts();
+    fetchTrendingPerfumes();
   }, []);
 
   useEffect(() => {
-    if (products.length > 0) {
+    if (trendingPerfumes.length > 0) {
       const interval = setInterval(() => {
-        setCurrentSlide((prev) => (prev + 1) % products.length);
+        setCurrentSlide((prev) => (prev + 1) % trendingPerfumes.length);
       }, 5000);
 
       return () => clearInterval(interval);
     }
-  }, [products.length]);
+  }, [trendingPerfumes.length]);
 
-  const fetchFeaturedProducts = async () => {
+  const fetchTrendingPerfumes = async () => {
     try {
       const { data, error } = await supabase
-        .from('products')
+        .from('trending_perfumes')
         .select(`
           *,
-          brand:brands(name),
-          category:categories(name)
+          product:products(
+            *,
+            brand:brands(name),
+            category:categories(name),
+            product_images(*)
+          )
         `)
-        .order('rating', { ascending: false })
-        .limit(5);
+        .eq('is_active', true)
+        .order('order_index');
       
       if (error) throw error;
-      setProducts(data || []);
+      setTrendingPerfumes(data || []);
     } catch (error) {
-      console.error('Error fetching featured products:', error);
+      console.error('Error fetching trending perfumes:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % products.length);
+    setCurrentSlide((prev) => (prev + 1) % trendingPerfumes.length);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + products.length) % products.length);
+    setCurrentSlide((prev) => (prev - 1 + trendingPerfumes.length) % trendingPerfumes.length);
   };
 
   const goToSlide = (index: number) => {
@@ -77,7 +81,7 @@ const ProductHeroSlider: React.FC = () => {
           />
         ))}
         <span className="text-sm text-gray-600 ml-2">
-          {rating.toFixed(1)} ({products[currentSlide]?.reviews_count || 0} reviews)
+          {rating.toFixed(1)} ({trendingPerfumes[currentSlide]?.product?.reviews_count || 0} reviews)
         </span>
       </div>
     );
@@ -91,11 +95,11 @@ const ProductHeroSlider: React.FC = () => {
     );
   }
 
-  if (products.length === 0) {
+  if (trendingPerfumes.length === 0) {
     return null;
   }
 
-  const currentProduct = products[currentSlide];
+  const currentProduct = trendingPerfumes[currentSlide]?.product;
 
   return (
     <div className="relative w-full h-80 sm:h-96 md:h-[500px] bg-gradient-to-r from-gray-50 to-white overflow-hidden">
@@ -107,7 +111,10 @@ const ProductHeroSlider: React.FC = () => {
             {/* Left Content */}
             <div className="space-y-3 sm:space-y-6 text-center lg:text-left px-4 lg:px-0">
               <div>
-                <p className="text-xs sm:text-sm font-medium text-yellow-600 uppercase tracking-wide">
+                <p className="text-xs sm:text-sm font-medium text-yellow-600 uppercase tracking-wide mb-2">
+                  Trending Perfume
+                </p>
+                <p className="text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wide">
                   {currentProduct.brand?.name}
                 </p>
                 <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mt-2 leading-tight">
@@ -139,7 +146,12 @@ const ProductHeroSlider: React.FC = () => {
             <div className="relative h-full flex items-center justify-center px-4 lg:px-0">
               <div className="aspect-square w-full max-w-xs sm:max-w-md overflow-hidden rounded-lg shadow-lg">
                 <img
-                  src={currentProduct.image_url || 'https://images.pexels.com/photos/1190829/pexels-photo-1190829.jpeg?auto=compress&cs=tinysrgb&w=600'}
+                  src={
+                    currentProduct.product_images?.find(img => img.is_primary)?.image_url ||
+                    currentProduct.product_images?.[0]?.image_url ||
+                    currentProduct.image_url || 
+                    'https://images.pexels.com/photos/1190829/pexels-photo-1190829.jpeg?auto=compress&cs=tinysrgb&w=600'
+                  }
                   alt={currentProduct.title}
                   className="w-full h-full object-cover"
                 />
@@ -165,7 +177,7 @@ const ProductHeroSlider: React.FC = () => {
 
       {/* Pagination Dots */}
       <div className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-2">
-        {products.map((_, index) => (
+        {trendingPerfumes.map((_, index) => (
           <button
             key={index}
             onClick={() => goToSlide(index)}
@@ -180,7 +192,7 @@ const ProductHeroSlider: React.FC = () => {
 
       {/* Slide Indicator */}
       <div className="absolute top-4 sm:top-6 right-4 sm:right-6 bg-black/20 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm">
-        {currentSlide + 1} / {products.length}
+        {currentSlide + 1} / {trendingPerfumes.length}
       </div>
     </div>
   );
