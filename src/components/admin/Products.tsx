@@ -7,7 +7,9 @@ interface ProductFormData {
   title: string;
   description: string;
   price: number;
+  compare_at_price: number | null;
   stock: number;
+  in_stock: boolean;
   brand_id: string;
   category_id: string;
   image_url: string;
@@ -35,7 +37,9 @@ const Products: React.FC = () => {
     title: '',
     description: '',
     price: 0,
+    compare_at_price: null,
     stock: 0,
+    in_stock: true,
     brand_id: '',
     category_id: '',
     image_url: '',
@@ -318,7 +322,9 @@ const Products: React.FC = () => {
       title: product.title,
       description: product.description,
       price: product.price,
+      compare_at_price: product.compare_at_price || null,
       stock: product.stock,
+      in_stock: product.in_stock !== undefined ? product.in_stock : true,
       brand_id: product.brand_id,
       category_id: product.category_id,
       image_url: product.image_url,
@@ -350,7 +356,9 @@ const Products: React.FC = () => {
       title: '',
       description: '',
       price: 0,
+      compare_at_price: null,
       stock: 0,
+      in_stock: true,
       brand_id: '',
       category_id: '',
       image_url: '',
@@ -412,8 +420,18 @@ const Products: React.FC = () => {
               <h3 className="font-semibold text-lg mb-2">{product.title}</h3>
               <p className="text-gray-600 text-sm mb-2 line-clamp-2">{product.description}</p>
               <div className="flex justify-between items-center mb-2">
-                <span className="font-bold text-lg">KSH {product.price.toLocaleString()}</span>
+                <div className="flex items-center gap-2">
+                  {product.compare_at_price && product.compare_at_price > product.price && (
+                    <span className="text-sm text-gray-400 line-through">KSH {product.compare_at_price.toLocaleString()}</span>
+                  )}
+                  <span className="font-bold text-lg">KSH {product.price.toLocaleString()}</span>
+                </div>
                 <span className="text-sm text-gray-500">Stock: {product.stock}</span>
+              </div>
+              <div className="mb-2">
+                <span className={`text-xs px-2 py-1 rounded-full ${product.in_stock !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  {product.in_stock !== false ? 'In Stock' : 'Sold Out'}
+                </span>
               </div>
               <div className="text-xs text-gray-500 mb-3">
                 <span>{product.brand?.name}</span> • <span>{product.category?.name}</span>
@@ -502,7 +520,24 @@ const Products: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Stock
+                    Compare at Price (Optional)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={formData.compare_at_price || ''}
+                    onChange={(e) => setFormData({ ...formData, compare_at_price: e.target.value ? parseFloat(e.target.value) : null })}
+                    placeholder="Original price for discounts"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Stock Count
                   </label>
                   <input
                     type="number"
@@ -512,6 +547,33 @@ const Products: React.FC = () => {
                     onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Stock Status
+                  </label>
+                  <div className="flex gap-4 pt-2">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="in_stock"
+                        checked={formData.in_stock === true}
+                        onChange={() => setFormData({ ...formData, in_stock: true })}
+                        className="mr-2"
+                      />
+                      <span className="text-sm text-green-600 font-medium">In Stock</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name="in_stock"
+                        checked={formData.in_stock === false}
+                        onChange={() => setFormData({ ...formData, in_stock: false })}
+                        className="mr-2"
+                      />
+                      <span className="text-sm text-red-600 font-medium">Sold Out</span>
+                    </label>
+                  </div>
                 </div>
               </div>
 

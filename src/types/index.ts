@@ -23,6 +23,8 @@ export interface Product {
   brand_id: string;
   category_id: string;
   stock: number;
+  in_stock?: boolean;
+  compare_at_price?: number;
   created_at?: string;
   rating?: number;
   reviews_count?: number;
