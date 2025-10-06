@@ -77,25 +77,45 @@ Please let me know about availability and delivery options.`;
           </span>
         </div>
         
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <span className="text-lg sm:text-xl font-bold text-gray-900">
-            KSH {product.price.toLocaleString()}
-          </span>
-          <div className="flex gap-1 sm:gap-2">
-            <button
-              onClick={handleWhatsAppOrder}
-              className="bg-green-600 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-md hover:bg-green-700 transition-colors flex items-center gap-1 text-xs sm:text-sm"
-              title="Order via WhatsApp"
-            >
-              <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4" />
-            </button>
-            <button
-              onClick={handleAddToCart}
-              className="bg-black text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-md hover:bg-gray-800 transition-colors flex items-center gap-1 text-xs sm:text-sm"
-            >
-              <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
-            </button>
+        <div className="mb-3">
+          <div className="flex items-center gap-2">
+            {product.compare_at_price && product.compare_at_price > product.price && (
+              <span className="text-sm text-gray-400 line-through">
+                KSH {product.compare_at_price.toLocaleString()}
+              </span>
+            )}
+            <span className="text-lg sm:text-xl font-bold text-gray-900">
+              KSH {product.price.toLocaleString()}
+            </span>
           </div>
+          <div className="mt-1">
+            <span className={`text-xs px-2 py-1 rounded-full ${product.in_stock !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+              {product.in_stock !== false ? 'In Stock' : 'Sold Out'}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex gap-1 sm:gap-2">
+          <button
+            onClick={handleWhatsAppOrder}
+            className="flex-1 bg-green-600 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-md hover:bg-green-700 transition-colors flex items-center justify-center gap-1 text-xs sm:text-sm"
+            title="Order via WhatsApp"
+          >
+            <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">WhatsApp</span>
+          </button>
+          <button
+            onClick={handleAddToCart}
+            disabled={product.in_stock === false}
+            className={`flex-1 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md transition-colors flex items-center justify-center gap-1 text-xs sm:text-sm ${
+              product.in_stock === false
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-black text-white hover:bg-gray-800'
+            }`}
+          >
+            <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Cart</span>
+          </button>
         </div>
       </div>
     </div>

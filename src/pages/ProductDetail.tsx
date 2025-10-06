@@ -262,8 +262,22 @@ Please let me know about availability and delivery options.`;
                 </span>
               </div>
 
-              <div className="text-2xl sm:text-3xl font-bold text-gray-900">
-                KSH {product.price.toLocaleString()}
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  {product.compare_at_price && product.compare_at_price > product.price && (
+                    <span className="text-lg sm:text-xl text-gray-400 line-through">
+                      KSH {product.compare_at_price.toLocaleString()}
+                    </span>
+                  )}
+                  <span className="text-2xl sm:text-3xl font-bold text-gray-900">
+                    KSH {product.price.toLocaleString()}
+                  </span>
+                </div>
+                <div>
+                  <span className={`inline-block text-sm px-3 py-1 rounded-full ${product.in_stock !== false ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {product.in_stock !== false ? 'In Stock' : 'Sold Out'}
+                  </span>
+                </div>
               </div>
 
               <div className="prose prose-gray max-w-none">
@@ -299,10 +313,15 @@ Please let me know about availability and delivery options.`;
                   </button>
                   <button
                     onClick={handleAddToCart}
-                    className="flex-1 bg-black text-white px-4 sm:px-6 py-3 rounded-md hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 font-medium text-sm sm:text-base"
+                    disabled={product.in_stock === false}
+                    className={`flex-1 px-4 sm:px-6 py-3 rounded-md transition-colors flex items-center justify-center gap-2 font-medium text-sm sm:text-base ${
+                      product.in_stock === false
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-black text-white hover:bg-gray-800'
+                    }`}
                   >
                     <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
-                    Add to Cart
+                    {product.in_stock === false ? 'Out of Stock' : 'Add to Cart'}
                   </button>
                 </div>
               </div>
