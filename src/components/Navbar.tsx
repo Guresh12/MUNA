@@ -186,13 +186,13 @@ const Navbar: React.FC = () => {
           <div className="flex items-center space-x-2 sm:space-x-4">
             <div className="relative" ref={searchRef}>
               <form onSubmit={handleSearch} className="flex items-center">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search products..."
-                  className="hidden md:block w-32 lg:w-48 xl:w-64 px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
-                />
+               <input
+  type="text"
+  value={searchQuery}
+  onChange={(e) => setSearchQuery(e.target.value)}
+  placeholder="Search products..."
+  className="w-28 sm:w-40 lg:w-64 px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
+/>
                 <button 
                   type="submit"
                   className="ml-1 sm:ml-2 text-black hover:text-yellow-600 transition-colors"
